@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>QuickGrade - Teacher Portal & QR Scanner</title>
+    <title>QuickGrade - Admin & Teacher Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -23,6 +23,7 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- HTML5 QRCode Scanner Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -54,6 +55,7 @@
             box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
         }
 
+        /* Custom smooth scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -78,7 +80,7 @@
 <body class="h-full flex flex-col text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-900 transition-colors duration-200 antialiased selection:bg-indigo-500 selection:text-white">
 
     <header class="bg-indigo-700 dark:bg-slate-800 text-white shadow-md sticky top-0 z-30 transition-colors duration-200">
-        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-white/10 dark:bg-white/5 backdrop-blur-md border border-white/20 flex items-center justify-center text-xl shadow-inner text-amber-300">
                     <i class="fa-solid fa-user-shield"></i>
@@ -86,9 +88,9 @@
                 <div>
                     <h1 class="font-bold text-lg leading-tight tracking-tight flex items-center gap-2">
                         QuickGrade
-                        <span class="text-[10px] bg-amber-400 text-slate-900 font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Teacher</span>
+                        <span class="text-[10px] bg-amber-400 text-slate-900 font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Admin</span>
                     </h1>
-                    <p class="text-xs text-indigo-200 dark:text-slate-400 font-medium">Answer Key & QR Scanner Portal</p>
+                    <p class="text-xs text-indigo-200 dark:text-slate-400 font-medium">Teacher Answer Key & Scanner Portal</p>
                 </div>
             </div>
 
@@ -123,8 +125,12 @@
 
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 pb-24 space-y-5">
 
+        <!-- ========================================== -->
+        <!--        TAB 1: ANSWER KEY MANAGEMENT        -->
+        <!-- ========================================== -->
         <section id="tab-keys" class="space-y-4">
             
+            <!-- Create / Select Quiz Header -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700/80 transition-colors">
                 <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100 dark:border-slate-700">
                     <div>
@@ -163,6 +169,7 @@
                         </div>
                     </div>
 
+                    <!-- Preset Buttons -->
                     <div class="flex items-center gap-1.5 pt-1">
                         <span class="text-[11px] text-slate-400 font-medium mr-1">Presets:</span>
                         <button type="button" onclick="setAdminItemCount(10)" class="px-2.5 py-1 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 text-slate-600 dark:text-slate-300 font-semibold">10</button>
@@ -178,6 +185,7 @@
                 </form>
             </div>
 
+            <!-- Answer Key Items Encoding Grid -->
             <div id="keyGridContainerCard" class="hidden bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700/80 space-y-4">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
                     <div>
@@ -196,6 +204,7 @@
                 </div>
 
                 <div id="keyBubbleRows" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Dynamic answer key rows inserted here -->
                 </div>
 
                 <button onclick="saveActiveAnswerKey()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2">
@@ -204,17 +213,22 @@
                 </button>
             </div>
 
+            <!-- Saved Answer Keys List -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700/80 space-y-3">
                 <h3 class="font-bold text-slate-800 dark:text-white text-sm flex items-center gap-2">
                     <i class="fa-solid fa-database text-indigo-500"></i>
                     Saved Quizzes Answer Keys
                 </h3>
                 <div id="savedKeysList" class="space-y-2">
+                    <!-- Rendered saved key cards -->
                 </div>
             </div>
 
         </section>
 
+        <!-- ========================================== -->
+        <!--        TAB 2: SCANNER PORTAL               -->
+        <!-- ========================================== -->
         <section id="tab-scanner" class="hidden space-y-4">
             
             <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700/80 space-y-4">
@@ -224,18 +238,22 @@
                             <i class="fa-solid fa-camera text-indigo-500"></i>
                             Scan Student QR Code
                         </h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Point your camera at the student's generated QR screen</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Point your camera at the student's screen</p>
                     </div>
 
-                    <div class="w-full sm:w-56">
+                    <!-- Active Quiz Selector for Grading -->
+                    <div class="w-full sm:w-48">
                         <select id="activeScannerQuizSelect" onchange="changeActiveScanQuiz()" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl p-2 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <!-- Populated with available answer keys -->
                         </select>
                     </div>
                 </div>
 
+                <!-- Camera Container -->
                 <div class="flex flex-col items-center justify-center bg-slate-900 text-white rounded-2xl p-4 relative overflow-hidden min-h-[300px]">
                     <div id="reader" class="w-full max-w-sm rounded-xl overflow-hidden bg-slate-950 min-h-[240px] flex items-center justify-center"></div>
                     
+                    <!-- Camera Control & Status Bar -->
                     <div class="mt-3 flex items-center justify-between w-full max-w-sm px-1 text-xs">
                         <span id="cameraStatusText" class="text-slate-300 font-medium flex items-center gap-1.5 truncate">
                             <i class="fa-solid fa-camera text-indigo-400"></i>
@@ -247,12 +265,14 @@
                     </div>
                 </div>
 
+                <!-- Manual Code File Reader Option -->
                 <div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500 border-t border-slate-100 dark:border-slate-700">
                     <span class="font-medium">Alternatively upload QR image file:</span>
                     <input type="file" id="qrFileInput" accept="image/*" onchange="scanQRImageFile(event)" class="text-xs text-slate-500 file:mr-2 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 dark:file:bg-slate-700 dark:file:text-slate-300 hover:file:bg-indigo-100">
                 </div>
             </div>
 
+            <!-- Last Scanned Result Display Modal/Card -->
             <div id="scannedResultCard" class="hidden bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-xl border-2 border-emerald-500 space-y-4 transition-colors">
                 <div class="flex items-center justify-between">
                     <div class="inline-flex items-center gap-1.5 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 px-3 py-1 rounded-full text-xs font-extrabold">
@@ -275,15 +295,20 @@
                     </div>
                 </div>
 
+                <!-- Breakdown accordion -->
                 <div>
-                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">Item Breakdown (Student Answer / Correct Key)</h4>
+                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">Item Breakdown</h4>
                     <div id="resItemBreakdown" class="grid grid-cols-5 sm:grid-cols-10 gap-1.5 text-center text-xs">
+                        <!-- Items correct/wrong status pills -->
                     </div>
                 </div>
             </div>
 
         </section>
 
+        <!-- ========================================== -->
+        <!--        TAB 3: CONTINUOUS MATRIX GRADEBOOK  -->
+        <!-- ========================================== -->
         <section id="tab-matrix" class="hidden space-y-4">
             <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700/80 space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-700">
@@ -305,22 +330,29 @@
                     </div>
                 </div>
 
+                <!-- Search Input Bar -->
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
                     <input type="text" id="inputSearchStudent" oninput="renderGradebookMatrix()" placeholder="Search by student name or section..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 transition-all">
                 </div>
 
+                <!-- Gradebook Responsive Matrix Table -->
                 <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
                     <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
                         <thead id="matrixTableHeader" class="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 font-bold uppercase text-[11px] border-b border-slate-200 dark:border-slate-700">
+                            <!-- Dynamic Table Columns -->
                         </thead>
                         <tbody id="matrixTableBody" class="divide-y divide-slate-100 dark:divide-slate-800">
+                            <!-- Dynamic Table Rows -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
+        <!-- ========================================== -->
+        <!--        TAB 4: ITEM ANALYSIS ANALYTICS      -->
+        <!-- ========================================== -->
         <section id="tab-analysis" class="hidden space-y-4">
             
             <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700/80 space-y-4">
@@ -334,8 +366,10 @@
                     </div>
 
                     <div class="flex items-center gap-2">
+                        <!-- Select Active Quiz for Item Analysis -->
                         <div class="w-full sm:w-52">
                             <select id="analysisQuizSelect" onchange="renderItemAnalysis()" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl p-2 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <!-- Dynamic Options -->
                             </select>
                         </div>
                         <button onclick="exportItemAnalysisCSV()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition flex items-center gap-1.5 whitespace-nowrap">
@@ -345,6 +379,7 @@
                     </div>
                 </div>
 
+                <!-- KPI Summary Metric Cards -->
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="analysisKpiCards">
                     <div class="p-3.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900/60">
                         <span class="text-[10px] font-extrabold uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Papers Scanned</span>
@@ -364,13 +399,15 @@
                     </div>
                 </div>
 
+                <!-- Item Breakdown Grid -->
                 <div>
                     <h3 class="font-extrabold text-xs uppercase tracking-wider text-slate-500 mb-3 flex items-center justify-between">
                         <span>Item Breakdown & Response Frequency</span>
-                        <span class="text-[11px] font-semibold text-slate-400">Green = Correct Key</span>
+                        <span class="text-[11px] font-semibold text-slate-400">Green = Correct Answer Key</span>
                     </h3>
 
                     <div id="itemAnalysisList" class="space-y-3">
+                        <!-- Dynamic Item Breakdown Cards -->
                     </div>
                 </div>
 
@@ -380,6 +417,7 @@
 
     </main>
 
+    <!-- Custom Modal Dialog (Replaces alert/confirm) -->
     <div id="customModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200">
         <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 transform scale-95 transition-transform duration-200" id="customModalContainer">
             <div class="flex items-center gap-3 mb-4">
@@ -405,19 +443,28 @@
         </div>
     </div>
 
+    <!-- Custom Toast Alert Notification -->
     <div id="toastNotification" class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold px-4 py-2.5 rounded-full shadow-2xl transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-50 flex items-center gap-2">
         <i id="toastIcon" class="fa-solid fa-circle-info text-indigo-400 dark:text-indigo-600"></i>
         <span id="toastMessage">Notification message</span>
     </div>
 
     <script>
+        // Global Admin State
         const CHOICES = ['A', 'B', 'C', 'D'];
+        
+        // Storage Keys
         const STORAGE_KEYS = 'quickgrade_admin_keys';
         const STORAGE_GRADEBOOK = 'quickgrade_admin_gradebook';
         const STORAGE_THEME = 'quickgrade_theme';
 
-        let savedKeys = {};       
-        let currentEditingKey = { title: '', itemCount: 20, key: {} };
+        let savedKeys = {};       // { "Quiz 1": { title: "Quiz 1", itemCount: 20, key: {1:'A', 2:'B'...} } }
+        let currentEditingKey = {
+            title: '',
+            itemCount: 20,
+            key: {}
+        };
+
         let gradebook = [];
         let html5QrCode = null;
         let isScannerRunning = false;
@@ -431,6 +478,7 @@
             renderGradebookMatrix();
         });
 
+        /* Dark Mode Switcher Logic */
         function initTheme() {
             const savedTheme = localStorage.getItem(STORAGE_THEME);
             if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -451,9 +499,12 @@
 
         function updateThemeIcon(isDark) {
             const icon = document.getElementById('themeIcon');
-            if (icon) icon.className = isDark ? 'fa-solid fa-sun text-amber-300' : 'fa-solid fa-moon text-indigo-100';
+            if (icon) {
+                icon.className = isDark ? 'fa-solid fa-sun text-amber-300' : 'fa-solid fa-moon text-indigo-100';
+            }
         }
 
+        /* Tab Switcher Logic */
         function switchTab(tabName) {
             ['keys', 'scanner', 'matrix', 'analysis'].forEach(tab => {
                 const sec = document.getElementById(`tab-${tab}`);
@@ -467,21 +518,37 @@
                 }
             });
 
-            if (tabName === 'scanner') startScanner();
-            else stopScanner();
+            if (tabName === 'scanner') {
+                startScanner();
+            } else {
+                stopScanner();
+            }
 
-            if (tabName === 'matrix') renderGradebookMatrix();
-            if (tabName === 'analysis') renderItemAnalysis();
+            if (tabName === 'matrix') {
+                renderGradebookMatrix();
+            }
+
+            if (tabName === 'analysis') {
+                renderItemAnalysis();
+            }
         }
 
+        /* Preset Item Count Helper */
         function setAdminItemCount(count) {
             document.getElementById('inputAdminItemCount').value = count;
         }
 
+        /* =================================================== */
+        /*          ANSWER KEY MANAGEMENT FUNCTIONS            */
+        /* =================================================== */
         function loadStoredKeys() {
             const data = localStorage.getItem(STORAGE_KEYS);
             if (data) {
-                try { savedKeys = JSON.parse(data); } catch(e) { savedKeys = {}; }
+                try {
+                    savedKeys = JSON.parse(data);
+                } catch(e) {
+                    savedKeys = {};
+                }
             }
             renderSavedKeysList();
             updateScannerQuizDropdown();
@@ -498,8 +565,15 @@
             const title = document.getElementById('inputAdminQuizTitle').value.trim();
             const itemCount = parseInt(document.getElementById('inputAdminItemCount').value);
 
-            if (!title) { showToast('Please enter a Quiz Title', 'warning'); return; }
-            if (isNaN(itemCount) || itemCount < 1 || itemCount > 100) { showToast('Please enter valid items (1-100)', 'warning'); return; }
+            if (!title) {
+                showToast('Please enter a Quiz Title', 'warning');
+                return;
+            }
+
+            if (isNaN(itemCount) || itemCount < 1 || itemCount > 100) {
+                showToast('Please enter valid items (1-100)', 'warning');
+                return;
+            }
 
             currentEditingKey = {
                 title: title,
@@ -532,22 +606,35 @@
                     `;
                 }).join('');
 
-                row.innerHTML = `<div class="font-extrabold text-slate-700 dark:text-slate-300 text-xs w-8">#${i}</div><div class="flex items-center gap-2">${choicesHTML}</div>`;
+                row.innerHTML = `
+                    <div class="font-extrabold text-slate-700 dark:text-slate-300 text-xs w-8">#${i}</div>
+                    <div class="flex items-center gap-2">
+                        ${choicesHTML}
+                    </div>
+                `;
                 container.appendChild(row);
             }
         }
 
         function selectKeyChoice(itemNum, choice) {
             currentEditingKey.key[itemNum] = choice;
+
             CHOICES.forEach(c => {
                 const btn = document.getElementById(`key-item-${itemNum}-choice-${c}`);
-                if (btn) btn.className = (c === choice) ? "bubble-btn w-9 h-9 rounded-full font-bold text-xs border-2 key-selected" : "bubble-btn w-9 h-9 rounded-full font-bold text-xs border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-emerald-400";
+                if (btn) {
+                    if (c === choice) {
+                        btn.className = "bubble-btn w-9 h-9 rounded-full font-bold text-xs border-2 key-selected";
+                    } else {
+                        btn.className = "bubble-btn w-9 h-9 rounded-full font-bold text-xs border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:border-emerald-400";
+                    }
+                }
             });
         }
 
         function autoFillRandomKey() {
             for (let i = 1; i <= currentEditingKey.itemCount; i++) {
-                currentEditingKey.key[i] = CHOICES[Math.floor(Math.random() * CHOICES.length)];
+                const randomChoice = CHOICES[Math.floor(Math.random() * CHOICES.length)];
+                currentEditingKey.key[i] = randomChoice;
             }
             renderKeyRows(currentEditingKey.itemCount);
             showToast('Randomized answer key set!', 'info');
@@ -641,12 +728,15 @@
             const keysArray = Object.keys(savedKeys);
 
             if (keysArray.length === 0) {
-                select.innerHTML = `<option value="">No Active Keys Created</option>`;
+                select.innerHTML = `<option value="">No Active Keys</option>`;
                 activeScannerQuizTitle = '';
                 return;
             }
 
-            select.innerHTML = keysArray.map(title => `<option value="${title}" ${title === activeScannerQuizTitle ? 'selected' : ''}>Active Key: ${title}</option>`).join('');
+            select.innerHTML = keysArray.map(title => `
+                <option value="${title}" ${title === activeScannerQuizTitle ? 'selected' : ''}>Active: ${title}</option>
+            `).join('');
+
             activeScannerQuizTitle = select.value;
         }
 
@@ -655,58 +745,93 @@
             showToast(`Active scan target set to "${activeScannerQuizTitle}"`, 'info');
         }
 
+        /* =================================================== */
+        /*            QR SCANNER & AUTO GRADING                */
+        /* =================================================== */
         async function startScanner() {
             if (isScannerRunning) return;
+
             const statusEl = document.getElementById('cameraStatusText');
             if (statusEl) statusEl.innerText = "Initializing camera...";
 
-            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
 
             const config = { 
                 fps: 10, 
-                qrbox: (w, h) => { const size = Math.floor(Math.min(w, h) * 0.75); return { width: size, height: size }; }
+                qrbox: (viewfinderWidth, viewfinderHeight) => {
+                    const minDim = Math.min(viewfinderWidth, viewfinderHeight);
+                    const size = Math.floor(minDim * 0.75);
+                    return { width: size, height: size };
+                }
             };
 
+            // Attempt 1: Facing mode environment (back camera)
             try {
-                await html5QrCode.start({ facingMode: "environment" }, config, (text) => processScannedPayload(text), () => {});
+                await html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    config, 
+                    (decodedText) => processScannedPayload(decodedText),
+                    (errorMessage) => {}
+                );
                 isScannerRunning = true;
                 updateCameraControlsUI(true);
                 if (statusEl) statusEl.innerText = "Camera active • Point at QR code";
             } catch (err) {
+                console.warn("Direct facingMode camera start failed, trying available cameras list...", err);
+                
+                // Attempt 2: Device enumeration fallback
                 try {
                     const devices = await Html5Qrcode.getCameras();
                     if (devices && devices.length > 0) {
                         let cameraId = devices[0].id;
                         for (let dev of devices) {
                             if (dev.label.toLowerCase().includes('back') || dev.label.toLowerCase().includes('environment')) {
-                                cameraId = dev.id; break;
+                                cameraId = dev.id;
+                                break;
                             }
                         }
-                        await html5QrCode.start(cameraId, config, (text) => processScannedPayload(text), () => {});
+                        await html5QrCode.start(
+                            cameraId, 
+                            config, 
+                            (decodedText) => processScannedPayload(decodedText),
+                            (errorMessage) => {}
+                        );
                         isScannerRunning = true;
                         updateCameraControlsUI(true);
                         if (statusEl) statusEl.innerText = "Camera active • Point at QR code";
-                    } else throw new Error();
+                    } else {
+                        throw new Error("No cameras found");
+                    }
                 } catch (fallbackErr) {
+                    console.error("Camera start error:", fallbackErr);
                     isScannerRunning = false;
                     updateCameraControlsUI(false);
-                    if (statusEl) statusEl.innerText = "Camera unavailable";
-                    showToast('Camera unavailable. You can upload a QR image file below.', 'warning');
+                    if (statusEl) statusEl.innerText = "Camera permission denied or unavailable";
+                    showToast('Camera unavailable. You can also upload a QR image file below.', 'warning');
                 }
             }
         }
 
         async function stopScanner() {
             if (html5QrCode && isScannerRunning) {
-                try { await html5QrCode.stop(); } catch (err) {}
+                try {
+                    await html5QrCode.stop();
+                } catch (err) {
+                    console.log("Error stopping scanner:", err);
+                }
                 isScannerRunning = false;
                 updateCameraControlsUI(false);
             }
         }
 
         function toggleCameraState() {
-            if (isScannerRunning) stopScanner();
-            else startScanner();
+            if (isScannerRunning) {
+                stopScanner();
+            } else {
+                startScanner();
+            }
         }
 
         function updateCameraControlsUI(running) {
@@ -719,7 +844,9 @@
                 } else {
                     btn.innerHTML = `<i class="fa-solid fa-video mr-1"></i> Start Camera`;
                     btn.className = "px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition shadow-sm whitespace-nowrap";
-                    if (statusEl && statusEl.innerText.includes("Camera active")) statusEl.innerText = "Camera stopped";
+                    if (statusEl && statusEl.innerText.includes("Camera active")) {
+                        statusEl.innerText = "Camera stopped";
+                    }
                 }
             }
         }
@@ -727,78 +854,52 @@
         function scanQRImageFile(e) {
             if (e.target.files.length === 0) return;
             const file = e.target.files[0];
-            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+            
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
 
             html5QrCode.scanFile(file, true)
-                .then(text => processScannedPayload(text))
-                .catch(() => showToast('Could not detect valid QR code in uploaded image', 'error'));
+                .then(decodedText => {
+                    processScannedPayload(decodedText);
+                })
+                .catch(err => {
+                    showToast('Could not detect QR code in image file', 'error');
+                });
         }
 
+        // Web Audio Synthesizer Beep Sound on successful scan
         function playBeepSound() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
-                osc.type = 'sine'; osc.frequency.value = 880; 
+                osc.type = 'sine';
+                osc.frequency.value = 880; // A5 tone
                 gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                osc.connect(gain); gain.connect(ctx.destination);
-                osc.start(); osc.stop(ctx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.15);
             } catch(e) {}
         }
 
-        function parseQRPayload(payload) {
-            if (!payload || typeof payload !== 'string') return null;
-            payload = payload.trim();
-
-            if (payload.startsWith('{') && payload.endsWith('}')) {
-                try {
-                    const data = JSON.parse(payload);
-                    return {
-                        studentName: data.name || data.studentName || 'Student',
-                        studentSection: data.section || data.studentSection || 'General',
-                        quizTitle: data.quiz || data.quizTitle || data.title || activeScannerQuizTitle,
-                        dateTaken: data.date || data.dateTaken || new Date().toISOString().split('T')[0],
-                        totalItems: parseInt(data.total || data.totalItems || (data.answers ? data.answers.length : 0)),
-                        answerSeq: data.answers || data.answerSeq || ''
-                    };
-                } catch(e) {}
-            }
-
-            const parts = payload.split('|');
-            if (parts.length >= 7) {
-                const hasPrefix = ['QZ2', 'QZ1', 'QZ'].includes(parts[0]);
-                const offset = hasPrefix ? 1 : 0;
-                return {
-                    studentName: parts[offset].trim(),
-                    studentSection: parts[offset + 1].trim(),
-                    quizTitle: parts[offset + 2].trim(),
-                    dateTaken: parts[offset + 3].trim(),
-                    totalItems: parseInt(parts[offset + 4]),
-                    answerSeq: parts[offset + 5].trim()
-                };
-            } else if (parts.length >= 4) {
-                const answers = parts[parts.length - 1].trim();
-                return {
-                    studentName: parts[0].trim(),
-                    studentSection: parts[1].trim(),
-                    quizTitle: parts[2].trim(),
-                    dateTaken: new Date().toISOString().split('T')[0],
-                    totalItems: answers.length,
-                    answerSeq: answers
-                };
-            }
-            return null;
-        }
-
         function processScannedPayload(payload) {
-            const data = parseQRPayload(payload);
-            if (!data || !data.answerSeq) {
-                showToast('Unrecognized QR payload format!', 'error');
+            // Expected Format: QZ2|Name|Section|QuizTitle|Date|TotalItems|AnswerSeq
+            const parts = payload.split('|');
+            if (parts.length < 7 || parts[0] !== 'QZ2') {
+                showToast('Invalid QuickGrade QR Code payload', 'error');
                 return;
             }
 
-            const { studentName, studentSection, quizTitle, dateTaken, answerSeq } = data;
-            const totalItems = data.totalItems || answerSeq.length;
+            const studentName = parts[1].trim();
+            const studentSection = parts[2].trim();
+            const quizTitle = parts[3].trim();
+            const dateTaken = parts[4].trim();
+            const totalItems = parseInt(parts[5]);
+            const answerSeq = parts[6];
+
+            // Match active answer key
             const targetKeyObj = savedKeys[quizTitle] || savedKeys[activeScannerQuizTitle];
 
             if (!targetKeyObj) {
@@ -808,12 +909,14 @@
 
             playBeepSound();
 
+            // Calculate Score
             let correctCount = 0;
             let itemBreakdownHTML = '';
 
             for (let i = 1; i <= totalItems; i++) {
                 const studentAns = answerSeq[i - 1] || '-';
                 const correctKey = targetKeyObj.key[i] || '';
+
                 const isCorrect = studentAns !== '-' && studentAns === correctKey;
                 if (isCorrect) correctCount++;
 
@@ -827,6 +930,7 @@
 
             const percentage = Math.round((correctCount / totalItems) * 100);
 
+            // Display Scanned Card
             document.getElementById('resQuizTitle').innerText = quizTitle;
             document.getElementById('resStudentName').innerText = studentName;
             document.getElementById('resStudentSection').innerText = `Section: ${studentSection} • Date: ${dateTaken}`;
@@ -836,14 +940,23 @@
             document.getElementById('scanTimestamp').innerText = new Date().toLocaleTimeString();
             document.getElementById('scannedResultCard').classList.remove('hidden');
 
+            // Record into Continuous Matrix Gradebook with Answer Sequence for Item Analysis
             recordToGradebook(studentName, studentSection, quizTitle, dateTaken, correctCount, totalItems, percentage, answerSeq);
-            showToast(`Scanned ${studentName}: ${correctCount}/${totalItems} (${percentage}%)`, 'success');
+
+            showToast(`Scanned & graded ${studentName}: ${correctCount}/${totalItems}!`, 'success');
         }
 
+        /* =================================================== */
+        /*        CONTINUOUS MATRIX GRADEBOOK STORAGE          */
+        /* =================================================== */
         function loadStoredGradebook() {
             const data = localStorage.getItem(STORAGE_GRADEBOOK);
             if (data) {
-                try { gradebook = JSON.parse(data); } catch(e) { gradebook = []; }
+                try {
+                    gradebook = JSON.parse(data);
+                } catch(e) {
+                    gradebook = [];
+                }
             }
         }
 
@@ -851,13 +964,28 @@
             const studentKey = `${name.toLowerCase()}-${section.toLowerCase()}`;
             const quizColumnHeader = `${quizTitle} (${dateTaken})`;
 
+            // Find if student already exists
             let studentRecord = gradebook.find(s => s.id === studentKey);
+
             if (!studentRecord) {
-                studentRecord = { id: studentKey, name: name, section: section, scores: {} };
+                // Create new student entry row
+                studentRecord = {
+                    id: studentKey,
+                    name: name,
+                    section: section,
+                    scores: {}
+                };
                 gradebook.push(studentRecord);
             }
 
-            studentRecord.scores[quizColumnHeader] = { score, total, pct: percentage, answers: answerSeq || '' };
+            // Continuously append/update quiz grade under student's name in dynamic column
+            studentRecord.scores[quizColumnHeader] = {
+                score: score,
+                total: total,
+                pct: percentage,
+                answers: answerSeq || ''
+            };
+
             localStorage.setItem(STORAGE_GRADEBOOK, JSON.stringify(gradebook));
             renderGradebookMatrix();
         }
@@ -876,10 +1004,14 @@
                 return;
             }
 
+            // Extract all unique quiz columns across all students
             const allQuizColsSet = new Set();
-            gradebook.forEach(s => Object.keys(s.scores).forEach(qCol => allQuizColsSet.add(qCol)));
+            gradebook.forEach(s => {
+                Object.keys(s.scores).forEach(qCol => allQuizColsSet.add(qCol));
+            });
             const allQuizCols = Array.from(allQuizColsSet);
 
+            // Build Header Row
             headerRow.innerHTML = `
                 <tr>
                     <th class="p-3 whitespace-nowrap">Student Name</th>
@@ -889,32 +1021,43 @@
                 </tr>
             `;
 
-            const filteredStudents = gradebook.filter(s => s.name.toLowerCase().includes(search) || s.section.toLowerCase().includes(search));
+            // Filter students
+            const filteredStudents = gradebook.filter(s => 
+                s.name.toLowerCase().includes(search) || s.section.toLowerCase().includes(search)
+            );
 
             if (filteredStudents.length === 0) {
                 body.innerHTML = `<tr><td colspan="${allQuizCols.length + 3}" class="p-4 text-center text-xs text-slate-400">No matching student records found.</td></tr>`;
                 return;
             }
 
+            // Build Student Rows
             body.innerHTML = filteredStudents.map(student => {
                 let totalPctSum = 0;
                 let quizCount = 0;
 
                 const scoreCells = allQuizCols.map(col => {
-                    const sc = student.scores[col];
-                    if (sc) {
-                        totalPctSum += sc.pct; quizCount++;
-                        return `<td class="p-3 text-center whitespace-nowrap"><span class="font-extrabold text-slate-800 dark:text-white">${sc.score}/${sc.total}</span><span class="text-[10px] text-slate-400 block font-semibold">${sc.pct}%</span></td>`;
+                    const rec = student.scores[col];
+                    if (rec) {
+                        totalPctSum += rec.pct;
+                        quizCount++;
+                        return `
+                            <td class="p-3 text-center whitespace-nowrap">
+                                <span class="font-extrabold text-slate-800 dark:text-white">${rec.score}/${rec.total}</span>
+                                <span class="text-[10px] text-slate-400 font-semibold block">(${rec.pct}%)</span>
+                            </td>
+                        `;
+                    } else {
+                        return `<td class="p-3 text-center text-slate-300 dark:text-slate-600 font-bold">-</td>`;
                     }
-                    return `<td class="p-3 text-center text-slate-300 dark:text-slate-600">-</td>`;
                 }).join('');
 
                 const avgPct = quizCount > 0 ? Math.round(totalPctSum / quizCount) : 0;
 
                 return `
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-                        <td class="p-3 font-bold text-slate-800 dark:text-white whitespace-nowrap">${student.name}</td>
-                        <td class="p-3 text-slate-500 whitespace-nowrap">${student.section}</td>
+                        <td class="p-3 font-extrabold text-slate-800 dark:text-white whitespace-nowrap">${student.name}</td>
+                        <td class="p-3 text-slate-500 dark:text-slate-400 whitespace-nowrap">${student.section}</td>
                         ${scoreCells}
                         <td class="p-3 text-right font-black text-indigo-600 dark:text-indigo-400 whitespace-nowrap">${avgPct}%</td>
                     </tr>
@@ -922,186 +1065,360 @@
             }).join('');
         }
 
+        /* Export Matrix Gradebook to CSV file */
+        function exportGradebookCSV() {
+            if (gradebook.length === 0) {
+                showToast('No gradebook data available to export', 'warning');
+                return;
+            }
+
+            const allQuizColsSet = new Set();
+            gradebook.forEach(s => {
+                Object.keys(s.scores).forEach(qCol => allQuizColsSet.add(qCol));
+            });
+            const allQuizCols = Array.from(allQuizColsSet);
+
+            let csv = ['"Student Name","Section",' + allQuizCols.map(c => `"${c}"`).join(',') + ',"Average %"'];
+
+            gradebook.forEach(s => {
+                let totalPctSum = 0;
+                let quizCount = 0;
+
+                const cols = allQuizCols.map(col => {
+                    const rec = s.scores[col];
+                    if (rec) {
+                        totalPctSum += rec.pct;
+                        quizCount++;
+                        return `"${rec.score}/${rec.total} (${rec.pct}%)"`;
+                    } else {
+                        return '""';
+                    }
+                });
+
+                const avg = quizCount > 0 ? Math.round(totalPctSum / quizCount) : 0;
+                csv.push(`"${s.name}","${s.section}",` + cols.join(',') + `,"${avg}%"`);
+            });
+
+            const csvContent = "data:text/csv;charset=utf-8," + csv.join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `QuickGrade_Master_Gradebook_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast('Gradebook CSV downloaded!', 'success');
+        }
+
         function promptClearGradebook() {
             showModal({
                 title: 'Clear Gradebook?',
-                subtitle: 'Confirm Data Erasure',
-                message: 'Are you sure you want to delete all student scan records from your gradebook matrix? This cannot be undone.',
-                confirmText: 'Clear Gradebook',
+                subtitle: 'Reset All Student Grades',
+                message: 'Are you sure you want to clear all recorded student scores from this device? This action cannot be reverted.',
+                confirmText: 'Clear Gradebook Data',
                 onConfirm: () => {
                     gradebook = [];
                     localStorage.removeItem(STORAGE_GRADEBOOK);
                     renderGradebookMatrix();
-                    showToast('Gradebook data cleared', 'info');
+                    renderItemAnalysis();
+                    showToast('Gradebook data reset', 'info');
                 }
             });
         }
 
-        function exportGradebookCSV() {
-            if (gradebook.length === 0) { showToast('No gradebook data to export!', 'warning'); return; }
-
-            const allQuizColsSet = new Set();
-            gradebook.forEach(s => Object.keys(s.scores).forEach(qCol => allQuizColsSet.add(qCol)));
-            const allQuizCols = Array.from(allQuizColsSet);
-
-            let csv = ['Student Name,Section,' + allQuizCols.join(',') + ',Average %'];
-
-            gradebook.forEach(s => {
-                let totalPct = 0; let count = 0;
-                const cols = allQuizCols.map(col => {
-                    const sc = s.scores[col];
-                    if (sc) { totalPct += sc.pct; count++; return `"${sc.score}/${sc.total} (${sc.pct}%)"`; }
-                    return `"-"`;
-                });
-                const avg = count > 0 ? Math.round(totalPct / count) : 0;
-                csv.push(`"${s.name}","${s.section}",${cols.join(',')},"${avg}%"`);
-            });
-
-            const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `QuickGrade_Gradebook_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-        }
-
+        /* =================================================== */
+        /*              ITEM ANALYSIS ANALYTICS                */
+        /* =================================================== */
         function renderItemAnalysis() {
             const select = document.getElementById('analysisQuizSelect');
-            const keysArray = Object.keys(savedKeys);
+            const listContainer = document.getElementById('itemAnalysisList');
 
-            if (keysArray.length === 0) {
-                select.innerHTML = `<option value="">No Active Quizzes</option>`;
-                document.getElementById('itemAnalysisList').innerHTML = `<p class="text-xs text-slate-400">No quizzes available for item analysis.</p>`;
+            if (!select || !listContainer) return;
+
+            // Extract all unique quiz titles from saved keys or recorded scores
+            const quizTitlesSet = new Set(Object.keys(savedKeys));
+            gradebook.forEach(s => {
+                Object.keys(s.scores).forEach(qCol => {
+                    const title = qCol.split(' (')[0];
+                    if (title) quizTitlesSet.add(title);
+                });
+            });
+
+            const quizTitles = Array.from(quizTitlesSet);
+
+            if (quizTitles.length === 0) {
+                select.innerHTML = `<option value="">No Quizzes Found</option>`;
+                listContainer.innerHTML = `<p class="text-xs text-slate-400 font-medium italic p-4 text-center">No answer keys or scanned quiz submissions available for analysis.</p>`;
+                resetAnalysisKpis();
                 return;
             }
 
-            select.innerHTML = keysArray.map(title => `<option value="${title}">${title}</option>`).join('');
-            const quizTitle = select.value;
-            const targetKeyObj = savedKeys[quizTitle];
-            if (!targetKeyObj) return;
+            const currentSelected = select.value;
+            select.innerHTML = quizTitles.map(t => `<option value="${t}" ${t === currentSelected ? 'selected' : ''}>${t}</option>`).join('');
 
-            const scannedStudentAnswers = [];
-            let totalPctSum = 0, highScore = 0, lowScore = targetKeyObj.itemCount;
+            const selectedQuizTitle = select.value || quizTitles[0];
+
+            // Filter all submissions for this selected quiz title across gradebook
+            let quizSubmissions = [];
+            let totalItems = 0;
+            let targetKey = savedKeys[selectedQuizTitle] ? savedKeys[selectedQuizTitle].key : {};
+
+            if (savedKeys[selectedQuizTitle]) {
+                totalItems = savedKeys[selectedQuizTitle].itemCount;
+            }
 
             gradebook.forEach(student => {
                 Object.keys(student.scores).forEach(qCol => {
-                    if (qCol.startsWith(quizTitle)) {
-                        const sc = student.scores[qCol];
-                        scannedStudentAnswers.push(sc.answers);
-                        totalPctSum += sc.pct;
-                        if (sc.score > highScore) highScore = sc.score;
-                        if (sc.score < lowScore) lowScore = sc.score;
+                    if (qCol.startsWith(selectedQuizTitle)) {
+                        const rec = student.scores[qCol];
+                        quizSubmissions.push(rec);
+                        if (!totalItems && rec.total) totalItems = rec.total;
                     }
                 });
             });
 
-            const totalPapers = scannedStudentAnswers.length;
-            const meanPct = totalPapers > 0 ? Math.round(totalPctSum / totalPapers) : 0;
+            const paperCount = quizSubmissions.length;
 
-            document.getElementById('kpiTotalPapers').innerText = totalPapers;
-            document.getElementById('kpiMeanScore').innerText = `${meanPct}%`;
-            document.getElementById('kpiHighLow').innerText = `${highScore} / ${lowScore}`;
-
-            if (totalPapers === 0) {
-                document.getElementById('kpiHardestItem').innerText = 'None';
-                document.getElementById('itemAnalysisList').innerHTML = `<div class="p-4 text-center text-xs text-slate-400 bg-slate-50 dark:bg-slate-900 rounded-xl">No student scan records found for "${quizTitle}".</div>`;
+            if (paperCount === 0 || totalItems === 0) {
+                listContainer.innerHTML = `<p class="text-xs text-slate-400 font-medium italic p-4 text-center">No scanned student papers recorded for "${selectedQuizTitle}" yet. Scan student answer sheets to view item analysis.</p>`;
+                resetAnalysisKpis();
+                document.getElementById('kpiTotalPapers').innerText = `0 (Key set for ${totalItems || 0} items)`;
                 return;
             }
 
-            let itemBreakdownList = '';
-            let lowestCorrectCount = totalPapers + 1;
-            let hardestItemNum = 'None';
+            // Calculate KPIs
+            let totalPctSum = 0;
+            let highestScore = 0;
+            let lowestScore = totalItems;
 
-            for (let i = 1; i <= targetKeyObj.itemCount; i++) {
-                const correctKey = targetKeyObj.key[i];
-                const freqs = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, '-': 0 };
+            quizSubmissions.forEach(sub => {
+                totalPctSum += sub.pct;
+                if (sub.score > highestScore) highestScore = sub.score;
+                if (sub.score < lowestScore) lowestScore = sub.score;
+            });
 
-                scannedStudentAnswers.forEach(ansSeq => {
-                    const ans = ansSeq[i - 1] || '-';
-                    if (freqs[ans] !== undefined) freqs[ans]++;
-                    else freqs['-']++;
+            const meanPct = Math.round(totalPctSum / paperCount);
+
+            // Compute Item-by-Item Statistics
+            let itemStats = [];
+
+            for (let i = 1; i <= totalItems; i++) {
+                const correctKey = targetKey[i] || '?';
+                let freq = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, '-': 0 };
+
+                quizSubmissions.forEach(sub => {
+                    if (sub.answers) {
+                        const studentAns = sub.answers[i - 1] || '-';
+                        if (freq[studentAns] !== undefined) {
+                            freq[studentAns]++;
+                        } else {
+                            freq['-']++;
+                        }
+                    } else {
+                        freq['-']++;
+                    }
                 });
 
-                const correctCount = freqs[correctKey] || 0;
-                const difficultyPct = Math.round((correctCount / totalPapers) * 100);
+                const correctCount = correctKey !== '?' ? (freq[correctKey] || 0) : 0;
+                const successPct = Math.round((correctCount / paperCount) * 100);
 
-                if (correctCount < lowestCorrectCount) {
-                    lowestCorrectCount = correctCount;
-                    hardestItemNum = `#${i} (${difficultyPct}%)`;
+                let rating = 'Moderate';
+                let badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
+                
+                if (successPct >= 75) {
+                    rating = 'Easy Question';
+                    badgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+                } else if (successPct < 40) {
+                    rating = 'Hard Question';
+                    badgeClass = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300';
                 }
 
-                itemBreakdownList += `
-                    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700/80 space-y-2">
-                        <div class="flex items-center justify-between text-xs font-bold">
-                            <span class="text-slate-800 dark:text-white">Question #${i} (Answer Key: ${correctKey})</span>
-                            <span class="${difficultyPct >= 75 ? 'text-emerald-600' : difficultyPct >= 50 ? 'text-amber-600' : 'text-rose-600'}">
-                                ${correctCount}/${totalPapers} Correct (${difficultyPct}%)
-                            </span>
+                itemStats.push({
+                    itemNum: i,
+                    correctKey: correctKey,
+                    freq: freq,
+                    correctCount: correctCount,
+                    successPct: successPct,
+                    rating: rating,
+                    badgeClass: badgeClass
+                });
+            }
+
+            // Find Most Missed Question (Lowest success rate)
+            let hardestItem = itemStats.reduce((prev, curr) => (curr.successPct < prev.successPct) ? curr : prev, itemStats[0]);
+
+            // Update KPI Displays
+            document.getElementById('kpiTotalPapers').innerText = `${paperCount} Student${paperCount > 1 ? 's' : ''}`;
+            document.getElementById('kpiMeanScore').innerText = `${meanPct}%`;
+            document.getElementById('kpiHighLow').innerText = `${highestScore} / ${lowestScore}`;
+            document.getElementById('kpiHardestItem').innerText = hardestItem ? `#${hardestItem.itemNum} (${hardestItem.successPct}% correct)` : 'N/A';
+
+            // Render Item Cards
+            listContainer.innerHTML = itemStats.map(stat => {
+                const choicesBars = CHOICES.map(c => {
+                    const count = stat.freq[c] || 0;
+                    const pct = Math.round((count / paperCount) * 100);
+                    const isKey = c === stat.correctKey;
+
+                    return `
+                        <div class="flex-1 text-center">
+                            <div class="flex items-center justify-between text-[11px] font-bold mb-1">
+                                <span class="${isKey ? 'text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-0.5' : 'text-slate-600 dark:text-slate-400'}">
+                                    Option ${c} ${isKey ? '<i class="fa-solid fa-circle-check text-[10px]"></i>' : ''}
+                                </span>
+                                <span class="text-slate-400">${count} (${pct}%)</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-900 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all ${isKey ? 'bg-emerald-500' : 'bg-indigo-400 dark:bg-indigo-600'}" style="width: ${pct}%"></div>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-4 gap-2 text-center text-xs">
-                            ${CHOICES.map(c => `
-                                <div class="p-2 rounded-lg ${c === correctKey ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-extrabold border border-emerald-300' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300'}">
-                                    <div>Choice ${c}</div>
-                                    <div class="text-sm font-black">${freqs[c]}</div>
-                                </div>
-                            `).join('')}
+                    `;
+                }).join('');
+
+                return `
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/70 border border-slate-100 dark:border-slate-700/80 space-y-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-200/60 dark:border-slate-800">
+                            <div class="flex items-center gap-2">
+                                <span class="font-extrabold text-sm text-slate-800 dark:text-white">Item #${stat.itemNum}</span>
+                                <span class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">Key: ${stat.correctKey}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs px-2.5 py-0.5 rounded-full font-bold ${stat.badgeClass}">${stat.rating} (${stat.successPct}% Correct)</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                            ${choicesBars}
                         </div>
                     </div>
                 `;
-            }
+            }).join('');
+        }
 
-            document.getElementById('kpiHardestItem').innerText = hardestItemNum;
-            document.getElementById('itemAnalysisList').innerHTML = itemBreakdownList;
+        function resetAnalysisKpis() {
+            document.getElementById('kpiTotalPapers').innerText = '0';
+            document.getElementById('kpiMeanScore').innerText = '0%';
+            document.getElementById('kpiHighLow').innerText = '0 / 0';
+            document.getElementById('kpiHardestItem').innerText = 'None';
         }
 
         function exportItemAnalysisCSV() {
             const select = document.getElementById('analysisQuizSelect');
-            const quizTitle = select.value;
-            const targetKeyObj = savedKeys[quizTitle];
+            const quizTitle = select ? select.value : '';
 
-            if (!targetKeyObj) { showToast('Select a quiz for analysis first', 'warning'); return; }
-
-            let csv = ['Item #,Answer Key,Choice A,Choice B,Choice C,Choice D,Unanswered,Correct Count,Difficulty %'];
-
-            for (let i = 1; i <= targetKeyObj.itemCount; i++) {
-                const correctKey = targetKeyObj.key[i];
-                const freqs = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, '-': 0 };
-                let totalPapers = 0;
-
-                gradebook.forEach(s => {
-                    Object.keys(s.scores).forEach(qCol => {
-                        if (qCol.startsWith(quizTitle)) {
-                            totalPapers++;
-                            const ans = s.scores[qCol].answers[i - 1] || '-';
-                            if (freqs[ans] !== undefined) freqs[ans]++;
-                            else freqs['-']++;
-                        }
-                    });
-                });
-
-                const correctCount = freqs[correctKey] || 0;
-                const difficultyPct = totalPapers > 0 ? Math.round((correctCount / totalPapers) * 100) : 0;
-                csv.push(`"${i}","${correctKey}","${freqs['A']}","${freqs['B']}","${freqs['C']}","${freqs['D']}","${freqs['-']}","${correctCount}","${difficultyPct}%"`);
+            if (!quizTitle) {
+                showToast('No quiz selected for Item Analysis export', 'warning');
+                return;
             }
 
-            const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `QuickGrade_ItemAnalysis_${quizTitle}.csv`;
-            a.click();
+            let quizSubmissions = [];
+            let totalItems = savedKeys[quizTitle] ? savedKeys[quizTitle].itemCount : 0;
+            let targetKey = savedKeys[quizTitle] ? savedKeys[quizTitle].key : {};
+
+            gradebook.forEach(student => {
+                Object.keys(student.scores).forEach(qCol => {
+                    if (qCol.startsWith(quizTitle)) {
+                        const rec = student.scores[qCol];
+                        quizSubmissions.push(rec);
+                        if (!totalItems && rec.total) totalItems = rec.total;
+                    }
+                });
+            });
+
+            const paperCount = quizSubmissions.length;
+            if (paperCount === 0 || totalItems === 0) {
+                showToast('No scanned submissions found to export analysis', 'warning');
+                return;
+            }
+
+            let csv = [`"Item Number","Correct Key","Total Submissions","Correct Responses","Success Rate %","Difficulty Level","A Count","B Count","C Count","D Count","Unanswered Count"`];
+
+            for (let i = 1; i <= totalItems; i++) {
+                const correctKey = targetKey[i] || '?';
+                let freq = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, '-': 0 };
+
+                quizSubmissions.forEach(sub => {
+                    if (sub.answers) {
+                        const ans = sub.answers[i - 1] || '-';
+                        if (freq[ans] !== undefined) freq[ans]++;
+                        else freq['-']++;
+                    } else {
+                        freq['-']++;
+                    }
+                });
+
+                const correctCount = correctKey !== '?' ? (freq[correctKey] || 0) : 0;
+                const successPct = Math.round((correctCount / paperCount) * 100);
+
+                let rating = 'Moderate';
+                if (successPct >= 75) rating = 'Easy';
+                else if (successPct < 40) rating = 'Hard';
+
+                csv.push(`"${i}","${correctKey}","${paperCount}","${correctCount}","${successPct}%","${rating}","${freq['A']}","${freq['B']}","${freq['C']}","${freq['D']}","${freq['-']}"`);
+            }
+
+            const csvContent = "data:text/csv;charset=utf-8," + csv.join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `QuickGrade_Item_Analysis_${quizTitle.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast('Item Analysis CSV exported!', 'success');
+        }
+
+        /* =================================================== */
+        /*               UI DIALOGS & TOASTS                   */
+        /* =================================================== */
+        function showModal({ title, subtitle, message, confirmText, onConfirm }) {
+            document.getElementById('modalTitle').innerText = title || 'Confirmation Required';
+            document.getElementById('modalSubtitle').innerText = subtitle || 'Confirm Action';
+            document.getElementById('modalMessage').innerText = message || 'Are you sure you want to proceed?';
+            
+            const btn = document.getElementById('modalConfirmBtn');
+            btn.innerText = confirmText || 'Confirm';
+            
+            pendingModalAction = onConfirm;
+            btn.onclick = () => {
+                if (pendingModalAction) pendingModalAction();
+                closeModal();
+            };
+
+            const modal = document.getElementById('customModal');
+            const container = document.getElementById('customModalContainer');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            container.classList.remove('scale-95');
+            container.classList.add('scale-100');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('customModal');
+            const container = document.getElementById('customModalContainer');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            container.classList.remove('scale-100');
+            container.classList.add('scale-95');
+            pendingModalAction = null;
         }
 
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toastNotification');
-            const msgEl = document.getElementById('toastMessage');
             const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMessage');
 
-            msgEl.innerText = message;
-            if (type === 'success') icon.className = "fa-solid fa-circle-check text-emerald-400";
-            else if (type === 'warning') icon.className = "fa-solid fa-triangle-exclamation text-amber-400";
-            else if (type === 'error') icon.className = "fa-solid fa-circle-xmark text-rose-400";
-            else icon.className = "fa-solid fa-circle-info text-indigo-400";
+            msg.innerText = message;
+
+            if (type === 'success') {
+                icon.className = 'fa-solid fa-circle-check text-emerald-400 dark:text-emerald-500';
+            } else if (type === 'warning') {
+                icon.className = 'fa-solid fa-triangle-exclamation text-amber-400 dark:text-amber-500';
+            } else if (type === 'error') {
+                icon.className = 'fa-solid fa-circle-xmark text-rose-400 dark:text-rose-500';
+            } else {
+                icon.className = 'fa-solid fa-circle-info text-indigo-400 dark:text-indigo-500';
+            }
 
             toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
             toast.classList.add('opacity-100', 'translate-y-0');
@@ -1111,30 +1428,6 @@
                 toast.classList.remove('opacity-100', 'translate-y-0');
             }, 3000);
         }
-
-        function showModal(options) {
-            document.getElementById('modalTitle').innerText = options.title || 'Confirmation';
-            document.getElementById('modalSubtitle').innerText = options.subtitle || '';
-            document.getElementById('modalMessage').innerText = options.message || '';
-            document.getElementById('modalConfirmBtn').innerText = options.confirmText || 'Confirm';
-            pendingModalAction = options.onConfirm;
-
-            const modal = document.getElementById('customModal');
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            modal.classList.add('opacity-100');
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('customModal');
-            modal.classList.add('opacity-0', 'pointer-events-none');
-            modal.classList.remove('opacity-100');
-            pendingModalAction = null;
-        }
-
-        document.getElementById('modalConfirmBtn').addEventListener('click', () => {
-            if (pendingModalAction) pendingModalAction();
-            closeModal();
-        });
     </script>
 </body>
 </html>
