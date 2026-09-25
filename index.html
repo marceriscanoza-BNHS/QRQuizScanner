@@ -138,7 +138,7 @@
                             <i class="fa-solid fa-sliders text-indigo-500"></i>
                             Encode Answer Key
                         </h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Specify the quiz title, item count, and correct answers</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Specify the official teacher quiz title, item count, and correct answers</p>
                     </div>
 
                     <button onclick="clearCurrentKeyForm()" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition">
@@ -150,11 +150,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                                Quiz Title <span class="text-rose-500">*</span>
+                                Teacher Quiz Title <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
                                 <i class="fa-solid fa-pen-nib absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                                <input type="text" id="inputAdminQuizTitle" required placeholder="e.g. Quiz 1, Midterm Exam" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 transition-all">
+                                <input type="text" id="inputAdminQuizTitle" required placeholder="e.g. LT1-FM2, Quiz 1, Midterm Exam" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 transition-all">
                             </div>
                         </div>
 
@@ -241,9 +241,10 @@
                         <p class="text-xs text-slate-500 dark:text-slate-400">Point your camera at the student's screen</p>
                     </div>
 
-                    <!-- Active Quiz Selector for Grading -->
-                    <div class="w-full sm:w-48">
-                        <select id="activeScannerQuizSelect" onchange="changeActiveScanQuiz()" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl p-2 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <!-- Active Teacher Quiz Selector for Grading -->
+                    <div class="w-full sm:w-60">
+                        <label class="block text-[10px] uppercase font-extrabold text-indigo-600 dark:text-indigo-400 mb-1">Target Teacher Quiz</label>
+                        <select id="activeScannerQuizSelect" onchange="changeActiveScanQuiz()" class="w-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs rounded-xl p-2 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <!-- Populated with available answer keys -->
                         </select>
                     </div>
@@ -284,7 +285,7 @@
 
                 <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-900/80 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
                     <div>
-                        <span id="resQuizTitle" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Quiz 1</span>
+                        <span id="resQuizTitle" class="text-xs font-extrabold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">LT1-FM2</span>
                         <h3 id="resStudentName" class="text-lg font-extrabold text-slate-800 dark:text-white">Maria Santos</h3>
                         <p id="resStudentSection" class="text-xs font-medium text-slate-500 dark:text-slate-400">Section: 10 - Gold</p>
                     </div>
@@ -317,7 +318,7 @@
                             <i class="fa-solid fa-table text-indigo-500"></i>
                             Continuous Gradebook Matrix
                         </h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Live aggregated grades across all scanned assessments</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Live aggregated grades using teacher's official quiz titles</p>
                     </div>
 
                     <div class="flex items-center gap-2 flex-wrap">
@@ -458,7 +459,7 @@
         const STORAGE_GRADEBOOK = 'quickgrade_admin_gradebook';
         const STORAGE_THEME = 'quickgrade_theme';
 
-        let savedKeys = {};       // { "Quiz 1": { title: "Quiz 1", itemCount: 20, key: {1:'A', 2:'B'...} } }
+        let savedKeys = {};       // { "LT1-FM2": { title: "LT1-FM2", itemCount: 20, key: {1:'A', 2:'B'...} } }
         let currentEditingKey = {
             title: '',
             itemCount: 20,
@@ -478,7 +479,6 @@
             renderGradebookMatrix();
         });
 
-        /* Dark Mode Switcher Logic */
         function initTheme() {
             const savedTheme = localStorage.getItem(STORAGE_THEME);
             if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -504,7 +504,6 @@
             }
         }
 
-        /* Tab Switcher Logic */
         function switchTab(tabName) {
             ['keys', 'scanner', 'matrix', 'analysis'].forEach(tab => {
                 const sec = document.getElementById(`tab-${tab}`);
@@ -533,7 +532,6 @@
             }
         }
 
-        /* Preset Item Count Helper */
         function setAdminItemCount(count) {
             document.getElementById('inputAdminItemCount').value = count;
         }
@@ -728,13 +726,13 @@
             const keysArray = Object.keys(savedKeys);
 
             if (keysArray.length === 0) {
-                select.innerHTML = `<option value="">No Active Keys</option>`;
+                select.innerHTML = `<option value="">No Active Answer Keys</option>`;
                 activeScannerQuizTitle = '';
                 return;
             }
 
             select.innerHTML = keysArray.map(title => `
-                <option value="${title}" ${title === activeScannerQuizTitle ? 'selected' : ''}>Active: ${title}</option>
+                <option value="${title}" ${title === activeScannerQuizTitle ? 'selected' : ''}>Active Key: ${title}</option>
             `).join('');
 
             activeScannerQuizTitle = select.value;
@@ -868,7 +866,6 @@
                 });
         }
 
-        // Web Audio Synthesizer Beep Sound on successful scan
         function playBeepSound() {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -885,7 +882,7 @@
         }
 
         function processScannedPayload(payload) {
-            // Expected Format: QZ2|Name|Section|QuizTitle|Date|TotalItems|AnswerSeq
+            // Expected Payload Format: QZ2|Name|Section|QuizTitle|Date|TotalItems|AnswerSeq
             const parts = payload.split('|');
             if (parts.length < 7 || parts[0] !== 'QZ2') {
                 showToast('Invalid QuickGrade QR Code payload', 'error');
@@ -894,26 +891,47 @@
 
             const studentName = parts[1].trim();
             const studentSection = parts[2].trim();
-            const quizTitle = parts[3].trim();
+            const studentQuizTitle = parts[3].trim(); // Name generated on student side (e.g. "LT1")
             const dateTaken = parts[4].trim();
             const totalItems = parseInt(parts[5]);
             const answerSeq = parts[6];
 
-            // Match active answer key
-            const targetKeyObj = savedKeys[quizTitle] || savedKeys[activeScannerQuizTitle];
+            // Determine Teacher's Answer Key Object:
+            // 1. Priority to the currently selected active dropdown quiz (e.g. LT1-FM2)
+            // 2. Direct lookup for studentQuizTitle if in savedKeys
+            // 3. Partial/Prefix match lookup in savedKeys (e.g. LT1 matching LT1-FM2)
+            let targetKeyObj = null;
+
+            if (activeScannerQuizTitle && savedKeys[activeScannerQuizTitle]) {
+                targetKeyObj = savedKeys[activeScannerQuizTitle];
+            } else if (studentQuizTitle && savedKeys[studentQuizTitle]) {
+                targetKeyObj = savedKeys[studentQuizTitle];
+            } else {
+                const matchedKeyName = Object.keys(savedKeys).find(k => 
+                    k.toLowerCase().startsWith(studentQuizTitle.toLowerCase()) || 
+                    studentQuizTitle.toLowerCase().startsWith(k.toLowerCase())
+                );
+                if (matchedKeyName) {
+                    targetKeyObj = savedKeys[matchedKeyName];
+                }
+            }
 
             if (!targetKeyObj) {
-                showToast(`No Answer Key found for "${quizTitle}". Please create its key first!`, 'error');
+                showToast(`No Answer Key found for "${studentQuizTitle}". Please create or select an active answer key!`, 'error');
                 return;
             }
 
+            // CRITICAL: IGNORE the student's quiz name for recording, and ALWAYS use the teacher's official quiz title (e.g. "LT1-FM2")
+            const teacherQuizTitle = targetKeyObj.title;
+
             playBeepSound();
 
-            // Calculate Score
+            // Calculate Score based on Teacher's Answer Key
             let correctCount = 0;
             let itemBreakdownHTML = '';
+            const keyItemCount = targetKeyObj.itemCount || totalItems;
 
-            for (let i = 1; i <= totalItems; i++) {
+            for (let i = 1; i <= keyItemCount; i++) {
                 const studentAns = answerSeq[i - 1] || '-';
                 const correctKey = targetKeyObj.key[i] || '';
 
@@ -928,22 +946,23 @@
                 `;
             }
 
-            const percentage = Math.round((correctCount / totalItems) * 100);
+            const percentage = Math.round((correctCount / keyItemCount) * 100);
 
-            // Display Scanned Card
-            document.getElementById('resQuizTitle').innerText = quizTitle;
+            // Display Scanned Card using Teacher's Quiz Title
+            const titleBadgeExtra = (studentQuizTitle !== teacherQuizTitle) ? ` <span class="text-[10px] text-slate-400 font-normal lowercase">(student tag: ${studentQuizTitle})</span>` : '';
+            document.getElementById('resQuizTitle').innerHTML = `${teacherQuizTitle}${titleBadgeExtra}`;
             document.getElementById('resStudentName').innerText = studentName;
             document.getElementById('resStudentSection').innerText = `Section: ${studentSection} • Date: ${dateTaken}`;
-            document.getElementById('resScore').innerText = `${correctCount} / ${totalItems}`;
+            document.getElementById('resScore').innerText = `${correctCount} / ${keyItemCount}`;
             document.getElementById('resPercentage').innerText = `${percentage}%`;
             document.getElementById('resItemBreakdown').innerHTML = itemBreakdownHTML;
             document.getElementById('scanTimestamp').innerText = new Date().toLocaleTimeString();
             document.getElementById('scannedResultCard').classList.remove('hidden');
 
-            // Record into Continuous Matrix Gradebook with Answer Sequence for Item Analysis
-            recordToGradebook(studentName, studentSection, quizTitle, dateTaken, correctCount, totalItems, percentage, answerSeq);
+            // Record into Continuous Matrix Gradebook under the TEACHER'S QUIZ TITLE
+            recordToGradebook(studentName, studentSection, teacherQuizTitle, dateTaken, correctCount, keyItemCount, percentage, answerSeq);
 
-            showToast(`Scanned & graded ${studentName}: ${correctCount}/${totalItems}!`, 'success');
+            showToast(`Recorded under "${teacherQuizTitle}" for ${studentName}: ${correctCount}/${keyItemCount}!`, 'success');
         }
 
         /* =================================================== */
@@ -978,7 +997,7 @@
                 gradebook.push(studentRecord);
             }
 
-            // Continuously append/update quiz grade under student's name in dynamic column
+            // Continuously append/update quiz grade under student's name in teacher's quiz column
             studentRecord.scores[quizColumnHeader] = {
                 score: score,
                 total: total,
@@ -1065,7 +1084,6 @@
             }).join('');
         }
 
-        /* Export Matrix Gradebook to CSV file */
         function exportGradebookCSV() {
             if (gradebook.length === 0) {
                 showToast('No gradebook data available to export', 'warning');
