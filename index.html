@@ -882,89 +882,80 @@
         }
 
         function processScannedPayload(payload) {
-            // Expected Payload Format: QZ2|Name|Section|QuizTitle|Date|TotalItems|AnswerSeq
-            const parts = payload.split('|');
-            if (parts.length < 7 || parts[0] !== 'QZ2') {
-                showToast('Invalid QuickGrade QR Code payload', 'error');
-                return;
-            }
+    // Expected Payload Format: QZ2|Name|Section|QuizTitle|Date|TotalItems|AnswerSeq
+    const parts = payload.split('|');
+    if (parts.length < 7 || parts[0] !== 'QZ2') {
+        showToast('Invalid QuickGrade QR Code payload', 'error');
+        return;
+    }
 
-            const studentName = parts[1].trim();
-            const studentSection = parts[2].trim();
-            const studentQuizTitle = parts[3].trim(); // Name generated on student side (e.g. "LT1")
-            const dateTaken = parts[4].trim();
-            const totalItems = parseInt(parts[5]);
-            const answerSeq = parts[6];
+    const studentName = parts[1].trim();
+    const studentSection = parts[2].trim();
+    const studentQuizTitle = parts[3].trim(); // Name generated on student side
+    const dateTaken = parts[4].trim();
+    const totalItems = parseInt(parts[5]);
+    const answerSeq = parts[6];
 
-            // Determine Teacher's Answer Key Object:
-            // 1. Priority to the currently selected active dropdown quiz (e.g. LT1-FM2)
-            // 2. Direct lookup for studentQuizTitle if in savedKeys
-            // 3. Partial/Prefix match lookup in savedKeys (e.g. LT1 matching LT1-FM2)
-            let targetKeyObj = null;
+    // FIX 1: Enforce the official Admin Teacher Quiz Key regardless of student QR quiz name
+    let targetKeyObj = null;
 
-            if (activeScannerQuizTitle && savedKeys[activeScannerQuizTitle]) {
-                targetKeyObj = savedKeys[activeScannerQuizTitle];
-            } else if (studentQuizTitle && savedKeys[studentQuizTitle]) {
-                targetKeyObj = savedKeys[studentQuizTitle];
-            } else {
-                const matchedKeyName = Object.keys(savedKeys).find(k => 
-                    k.toLowerCase().startsWith(studentQuizTitle.toLowerCase()) || 
-                    studentQuizTitle.toLowerCase().startsWith(k.toLowerCase())
-                );
-                if (matchedKeyName) {
-                    targetKeyObj = savedKeys[matchedKeyName];
-                }
-            }
-
-            if (!targetKeyObj) {
-                showToast(`No Answer Key found for "${studentQuizTitle}". Please create or select an active answer key!`, 'error');
-                return;
-            }
-
-            // CRITICAL: IGNORE the student's quiz name for recording, and ALWAYS use the teacher's official quiz title (e.g. "LT1-FM2")
-            const teacherQuizTitle = targetKeyObj.title;
-
-            playBeepSound();
-
-            // Calculate Score based on Teacher's Answer Key
-            let correctCount = 0;
-            let itemBreakdownHTML = '';
-            const keyItemCount = targetKeyObj.itemCount || totalItems;
-
-            for (let i = 1; i <= keyItemCount; i++) {
-                const studentAns = answerSeq[i - 1] || '-';
-                const correctKey = targetKeyObj.key[i] || '';
-
-                const isCorrect = studentAns !== '-' && studentAns === correctKey;
-                if (isCorrect) correctCount++;
-
-                itemBreakdownHTML += `
-                    <div class="p-1 rounded font-bold border ${isCorrect ? 'bg-emerald-50 dark:bg-emerald-950/70 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300' : 'bg-rose-50 dark:bg-rose-950/70 border-rose-300 dark:border-rose-700 text-rose-700 dark:text-rose-300'}">
-                        <div>#${i}</div>
-                        <div class="text-[10px]">${studentAns}/${correctKey}</div>
-                    </div>
-                `;
-            }
-
-            const percentage = Math.round((correctCount / keyItemCount) * 100);
-
-            // Display Scanned Card using Teacher's Quiz Title
-            const titleBadgeExtra = (studentQuizTitle !== teacherQuizTitle) ? ` <span class="text-[10px] text-slate-400 font-normal lowercase">(student tag: ${studentQuizTitle})</span>` : '';
-            document.getElementById('resQuizTitle').innerHTML = `${teacherQuizTitle}${titleBadgeExtra}`;
-            document.getElementById('resStudentName').innerText = studentName;
-            document.getElementById('resStudentSection').innerText = `Section: ${studentSection} • Date: ${dateTaken}`;
-            document.getElementById('resScore').innerText = `${correctCount} / ${keyItemCount}`;
-            document.getElementById('resPercentage').innerText = `${percentage}%`;
-            document.getElementById('resItemBreakdown').innerHTML = itemBreakdownHTML;
-            document.getElementById('scanTimestamp').innerText = new Date().toLocaleTimeString();
-            document.getElementById('scannedResultCard').classList.remove('hidden');
-
-            // Record into Continuous Matrix Gradebook under the TEACHER'S QUIZ TITLE
-            recordToGradebook(studentName, studentSection, teacherQuizTitle, dateTaken, correctCount, keyItemCount, percentage, answerSeq);
-
-            showToast(`Recorded under "${teacherQuizTitle}" for ${studentName}: ${correctCount}/${keyItemCount}!`, 'success');
+    if (activeScannerQuizTitle && savedKeys[activeScannerQuizTitle]) {
+        targetKeyObj = savedKeys[activeScannerQuizTitle];
+    } else {
+        // Fallback: pick the first available saved key if dropdown was not explicitly toggled
+        const firstAvailableKey = Object.keys(savedKeys)[0];
+        if (firstAvailableKey) {
+            targetKeyObj = savedKeys[firstAvailableKey];
         }
+    }
 
+    if (!targetKeyObj) {
+        showToast('No Answer Key configured! Please encode/save an answer key first.', 'error');
+        return;
+    }
+
+    // STRICT RESTRAINT: Always use the Admin's Official Quiz Title
+    const teacherQuizTitle = targetKeyObj.title;
+
+    playBeepSound();
+
+    // Calculate Score based on Teacher's Answer Key
+    let correctCount = 0;
+    let itemBreakdownHTML = '';
+    const keyItemCount = targetKeyObj.itemCount || totalItems;
+
+    for (let i = 1; i <= keyItemCount; i++) {
+        const studentAns = answerSeq[i - 1] || '-';
+        const correctKey = targetKeyObj.key[i] || '';
+
+        const isCorrect = studentAns !== '-' && studentAns === correctKey;
+        if (isCorrect) correctCount++;
+
+        itemBreakdownHTML += `
+            <div class="p-1 rounded font-bold border ${isCorrect ? 'bg-emerald-50 dark:bg-emerald-950/70 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300' : 'bg-rose-50 dark:bg-rose-950/70 border-rose-300 dark:border-rose-700 text-rose-700 dark:text-rose-300'}">
+                <div>#${i}</div>
+                <div class="text-[10px]">${studentAns}/${correctKey}</div>
+            </div>
+        `;
+    }
+
+    const percentage = Math.round((correctCount / keyItemCount) * 100);
+
+    // Display Scanned Card using Teacher's Quiz Title
+    document.getElementById('resQuizTitle').innerText = teacherQuizTitle;
+    document.getElementById('resStudentName').innerText = studentName;
+    document.getElementById('resStudentSection').innerText = `Section: ${studentSection} • Date: ${dateTaken}`;
+    document.getElementById('resScore').innerText = `${correctCount} / ${keyItemCount}`;
+    document.getElementById('resPercentage').innerText = `${percentage}%`;
+    document.getElementById('resItemBreakdown').innerHTML = itemBreakdownHTML;
+    document.getElementById('scanTimestamp').innerText = new Date().toLocaleTimeString();
+    document.getElementById('scannedResultCard').classList.remove('hidden');
+
+    // Record into Continuous Matrix Gradebook strictly under TEACHER'S OFFICIAL QUIZ TITLE
+    recordToGradebook(studentName, studentSection, teacherQuizTitle, dateTaken, correctCount, keyItemCount, percentage, answerSeq);
+
+    showToast(`Recorded under "${teacherQuizTitle}" for ${studentName}: ${correctCount}/${keyItemCount}!`, 'success');
+}
         /* =================================================== */
         /*        CONTINUOUS MATRIX GRADEBOOK STORAGE          */
         /* =================================================== */
@@ -979,35 +970,35 @@
             }
         }
 
-        function recordToGradebook(name, section, quizTitle, dateTaken, score, total, percentage, answerSeq) {
-            const studentKey = `${name.toLowerCase()}-${section.toLowerCase()}`;
-            const quizColumnHeader = `${quizTitle} (${dateTaken})`;
+ function recordToGradebook(name, section, quizTitle, dateTaken, score, total, percentage, answerSeq) {
+    const studentKey = `${name.toLowerCase().trim()}-${section.toLowerCase().trim()}`;
+    
+    // FIX 2: Store purely by official Quiz Title so columns align cleanly in Gradebook & CSV
+    const quizColumnHeader = quizTitle;
 
-            // Find if student already exists
-            let studentRecord = gradebook.find(s => s.id === studentKey);
+    let studentRecord = gradebook.find(s => s.id === studentKey);
 
-            if (!studentRecord) {
-                // Create new student entry row
-                studentRecord = {
-                    id: studentKey,
-                    name: name,
-                    section: section,
-                    scores: {}
-                };
-                gradebook.push(studentRecord);
-            }
+    if (!studentRecord) {
+        studentRecord = {
+            id: studentKey,
+            name: name,
+            section: section,
+            scores: {}
+        };
+        gradebook.push(studentRecord);
+    }
 
-            // Continuously append/update quiz grade under student's name in teacher's quiz column
-            studentRecord.scores[quizColumnHeader] = {
-                score: score,
-                total: total,
-                pct: percentage,
-                answers: answerSeq || ''
-            };
+    studentRecord.scores[quizColumnHeader] = {
+        score: score,
+        total: total,
+        pct: percentage,
+        answers: answerSeq || '',
+        date: dateTaken
+    };
 
-            localStorage.setItem(STORAGE_GRADEBOOK, JSON.stringify(gradebook));
-            renderGradebookMatrix();
-        }
+    localStorage.setItem(STORAGE_GRADEBOOK, JSON.stringify(gradebook));
+    renderGradebookMatrix();
+}
 
         function renderGradebookMatrix() {
             const searchInput = document.getElementById('inputSearchStudent');
@@ -1084,50 +1075,60 @@
             }).join('');
         }
 
-        function exportGradebookCSV() {
-            if (gradebook.length === 0) {
-                showToast('No gradebook data available to export', 'warning');
-                return;
+function exportGradebookCSV() {
+    if (gradebook.length === 0) {
+        showToast('No gradebook data available to export', 'warning');
+        return;
+    }
+
+    const allQuizColsSet = new Set();
+    gradebook.forEach(s => {
+        Object.keys(s.scores).forEach(qCol => allQuizColsSet.add(qCol));
+    });
+    const allQuizCols = Array.from(allQuizColsSet);
+
+    let csvLines = [];
+    
+    // CSV Header
+    const headers = ['"Student Name"', '"Section"', ...allQuizCols.map(c => `"${c.replace(/"/g, '""')}"`), '"Average %"'];
+    csvLines.push(headers.join(','));
+
+    // CSV Rows
+    gradebook.forEach(s => {
+        let totalPctSum = 0;
+        let quizCount = 0;
+
+        const cols = allQuizCols.map(col => {
+            const rec = s.scores[col];
+            if (rec) {
+                totalPctSum += rec.pct;
+                quizCount++;
+                return `"${rec.score}/${rec.total} (${rec.pct}%)"`;
+            } else {
+                return '""';
             }
+        });
 
-            const allQuizColsSet = new Set();
-            gradebook.forEach(s => {
-                Object.keys(s.scores).forEach(qCol => allQuizColsSet.add(qCol));
-            });
-            const allQuizCols = Array.from(allQuizColsSet);
+        const avg = quizCount > 0 ? Math.round(totalPctSum / quizCount) : 0;
+        const row = [`"${s.name.replace(/"/g, '""')}"`, `"${s.section.replace(/"/g, '""')}"`, ...cols, `"${avg}%"`];
+        csvLines.push(row.join(','));
+    });
 
-            let csv = ['"Student Name","Section",' + allQuizCols.map(c => `"${c}"`).join(',') + ',"Average %"'];
+    // Download using Blob to prevent data corruption or empty downloads
+    const csvData = csvLines.join("\n");
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `QuickGrade_Master_Gradebook_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 
-            gradebook.forEach(s => {
-                let totalPctSum = 0;
-                let quizCount = 0;
-
-                const cols = allQuizCols.map(col => {
-                    const rec = s.scores[col];
-                    if (rec) {
-                        totalPctSum += rec.pct;
-                        quizCount++;
-                        return `"${rec.score}/${rec.total} (${rec.pct}%)"`;
-                    } else {
-                        return '""';
-                    }
-                });
-
-                const avg = quizCount > 0 ? Math.round(totalPctSum / quizCount) : 0;
-                csv.push(`"${s.name}","${s.section}",` + cols.join(',') + `,"${avg}%"`);
-            });
-
-            const csvContent = "data:text/csv;charset=utf-8," + csv.join("\n");
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `QuickGrade_Master_Gradebook_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            showToast('Gradebook CSV downloaded!', 'success');
-        }
+    showToast('Gradebook CSV exported successfully!', 'success');
+}
 
         function promptClearGradebook() {
             showModal({
@@ -1321,72 +1322,77 @@
             document.getElementById('kpiHardestItem').innerText = 'None';
         }
 
-        function exportItemAnalysisCSV() {
-            const select = document.getElementById('analysisQuizSelect');
-            const quizTitle = select ? select.value : '';
+function exportItemAnalysisCSV() {
+    const select = document.getElementById('analysisQuizSelect');
+    const quizTitle = select ? select.value : '';
 
-            if (!quizTitle) {
-                showToast('No quiz selected for Item Analysis export', 'warning');
-                return;
+    if (!quizTitle) {
+        showToast('No quiz selected for Item Analysis export', 'warning');
+        return;
+    }
+
+    let quizSubmissions = [];
+    let totalItems = savedKeys[quizTitle] ? savedKeys[quizTitle].itemCount : 0;
+    let targetKey = savedKeys[quizTitle] ? savedKeys[quizTitle].key : {};
+
+    gradebook.forEach(student => {
+        Object.keys(student.scores).forEach(qCol => {
+            if (qCol === quizTitle || qCol.startsWith(quizTitle)) {
+                const rec = student.scores[qCol];
+                quizSubmissions.push(rec);
+                if (!totalItems && rec.total) totalItems = rec.total;
             }
+        });
+    });
 
-            let quizSubmissions = [];
-            let totalItems = savedKeys[quizTitle] ? savedKeys[quizTitle].itemCount : 0;
-            let targetKey = savedKeys[quizTitle] ? savedKeys[quizTitle].key : {};
+    const paperCount = quizSubmissions.length;
+    if (paperCount === 0 || totalItems === 0) {
+        showToast('No scanned submissions found to export analysis', 'warning');
+        return;
+    }
 
-            gradebook.forEach(student => {
-                Object.keys(student.scores).forEach(qCol => {
-                    if (qCol.startsWith(quizTitle)) {
-                        const rec = student.scores[qCol];
-                        quizSubmissions.push(rec);
-                        if (!totalItems && rec.total) totalItems = rec.total;
-                    }
-                });
-            });
+    let csvLines = [];
+    csvLines.push(`"Item Number","Correct Key","Total Submissions","Correct Responses","Success Rate %","Difficulty Level","A Count","B Count","C Count","D Count","Unanswered Count"`);
 
-            const paperCount = quizSubmissions.length;
-            if (paperCount === 0 || totalItems === 0) {
-                showToast('No scanned submissions found to export analysis', 'warning');
-                return;
+    for (let i = 1; i <= totalItems; i++) {
+        const correctKey = targetKey[i] || '?';
+        let freq = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, '-': 0 };
+
+        quizSubmissions.forEach(sub => {
+            if (sub.answers) {
+                const ans = sub.answers[i - 1] || '-';
+                if (freq[ans] !== undefined) freq[ans]++;
+                else freq['-']++;
+            } else {
+                freq['-']++;
             }
+        });
 
-            let csv = [`"Item Number","Correct Key","Total Submissions","Correct Responses","Success Rate %","Difficulty Level","A Count","B Count","C Count","D Count","Unanswered Count"`];
+        const correctCount = correctKey !== '?' ? (freq[correctKey] || 0) : 0;
+        const successPct = Math.round((correctCount / paperCount) * 100);
 
-            for (let i = 1; i <= totalItems; i++) {
-                const correctKey = targetKey[i] || '?';
-                let freq = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, '-': 0 };
+        let rating = 'Moderate';
+        if (successPct >= 75) rating = 'Easy';
+        else if (successPct < 40) rating = 'Hard';
 
-                quizSubmissions.forEach(sub => {
-                    if (sub.answers) {
-                        const ans = sub.answers[i - 1] || '-';
-                        if (freq[ans] !== undefined) freq[ans]++;
-                        else freq['-']++;
-                    } else {
-                        freq['-']++;
-                    }
-                });
+        csvLines.push(`"${i}","${correctKey}","${paperCount}","${correctCount}","${successPct}%","${rating}","${freq['A']}","${freq['B']}","${freq['C']}","${freq['D']}","${freq['-']}"`);
+    }
 
-                const correctCount = correctKey !== '?' ? (freq[correctKey] || 0) : 0;
-                const successPct = Math.round((correctCount / paperCount) * 100);
+    // Download using Blob
+    const csvData = csvLines.join("\n");
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
 
-                let rating = 'Moderate';
-                if (successPct >= 75) rating = 'Easy';
-                else if (successPct < 40) rating = 'Hard';
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `QuickGrade_Item_Analysis_${quizTitle.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 
-                csv.push(`"${i}","${correctKey}","${paperCount}","${correctCount}","${successPct}%","${rating}","${freq['A']}","${freq['B']}","${freq['C']}","${freq['D']}","${freq['-']}"`);
-            }
-
-            const csvContent = "data:text/csv;charset=utf-8," + csv.join("\n");
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `QuickGrade_Item_Analysis_${quizTitle.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            showToast('Item Analysis CSV exported!', 'success');
-        }
+    showToast('Item Analysis CSV exported successfully!', 'success');
+}
 
         /* =================================================== */
         /*               UI DIALOGS & TOASTS                   */
